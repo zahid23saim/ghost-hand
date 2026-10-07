@@ -1,0 +1,17 @@
+{
+  "name": "ghost-hand",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "node scripts/stamp-build.mjs && wrangler deploy",
+    "test": "node test/run-all.mjs"
+  },
+  "devDependencies": {
+    "qrcode-generator": "^1.5.2",
+    "wrangler": "^4.148.0"
+  },
+  "allowScripts": {
+    "workerd@1.20261006.1": true
+  }
+}
