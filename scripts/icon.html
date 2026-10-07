@@ -1,0 +1,85 @@
+<!doctype html>
+<!-- Ghost Hand app icon: the planchette on an indigo night. Rendered to PNG by scripts/make-og.mjs.
+     ?mask=1   maskable variant (full-bleed square, artwork inside the 80% safe circle)
+     ?bleed=1  apple-touch-icon variant (full-bleed square, larger artwork)
+     The artwork scales to the window size (192, 512, 180 ...). -->
+<html><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+  svg { display: block; width: 100vw; height: 100vh; }
+</style>
+</head><body>
+<svg id="ic" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#2A2552"/>
+      <stop offset="0.55" stop-color="#1B1838"/>
+      <stop offset="1" stop-color="#14122B"/>
+    </radialGradient>
+    <radialGradient id="lensGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#5EF2D0" stop-opacity="0.55"/>
+      <stop offset="0.5" stop-color="#5EF2D0" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#5EF2D0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lens" cx="42%" cy="38%" r="65%">
+      <stop offset="0" stop-color="#9FFBE6"/>
+      <stop offset="0.55" stop-color="#5EF2D0"/>
+      <stop offset="1" stop-color="#2FB89A"/>
+    </radialGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EBCB78"/>
+      <stop offset="0.5" stop-color="#C9A24A"/>
+      <stop offset="1" stop-color="#EBCB78"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3A3270"/>
+      <stop offset="1" stop-color="#2C2757"/>
+    </linearGradient>
+    <clipPath id="round"><rect width="512" height="512" rx="112"/></clipPath>
+  </defs>
+  <g id="bg" clip-path="url(#round)">
+    <rect width="512" height="512" fill="url(#sky)"/>
+    <g fill="#F3E9D2">
+      <circle cx="78" cy="96" r="4" opacity="0.8"/><circle cx="430" cy="78" r="3" opacity="0.6"/>
+      <circle cx="452" cy="300" r="2.5" opacity="0.55"/><circle cx="60" cy="350" r="3" opacity="0.5"/>
+      <circle cx="120" cy="450" r="2.2" opacity="0.5"/><circle cx="400" cy="452" r="3" opacity="0.5"/>
+    </g>
+    <path d="M402 128q0 26 26 26q-26 0-26 26q0-26-26-26q26 0 26-26z" fill="#FFC94D" opacity="0.9"/>
+  </g>
+  <g id="art">
+    <!-- felt feet -->
+    <g fill="#3A3270">
+      <ellipse cx="170" cy="392" rx="26" ry="16"/><ellipse cx="342" cy="392" rx="26" ry="16"/><ellipse cx="256" cy="436" rx="26" ry="16"/>
+    </g>
+    <!-- the heart body (render.js heartPath, r = 172, pointing up) -->
+    <path id="heart" fill="url(#body)" stroke="url(#brass)" stroke-width="16" stroke-linejoin="round"/>
+    <path d="M150 268 A 80 80 0 0 1 210 196" fill="none" stroke="#EBCB78" stroke-opacity="0.55" stroke-width="10" stroke-linecap="round"/>
+    <!-- the lens -->
+    <circle cx="256" cy="200" r="120" fill="url(#lensGlow)"/>
+    <circle cx="256" cy="200" r="64" fill="#14122B"/>
+    <circle cx="256" cy="200" r="64" fill="none" stroke="url(#brass)" stroke-width="12"/>
+    <circle cx="256" cy="200" r="44" fill="url(#lens)"/>
+    <ellipse cx="240" cy="184" rx="13" ry="9" fill="#FFFFFF" opacity="0.75" transform="rotate(-30 240 184)"/>
+  </g>
+</svg>
+<script>
+  // heartPath(g, r) from render.js, centred on (256, 300).
+  const r = 172, cx = 256, cy = 300;
+  const P = (x, y) => `${(cx + x * r).toFixed(1)} ${(cy + y * r).toFixed(1)}`;
+  document.getElementById("heart").setAttribute("d",
+    `M${P(0, -0.98)}C${P(0.55, -0.92)} ${P(1.08, -0.2)} ${P(0.86, 0.38)}C${P(0.7, 0.82)} ${P(0.28, 0.98)} ${P(0, 0.78)}` +
+    `C${P(-0.28, 0.98)} ${P(-0.7, 0.82)} ${P(-0.86, 0.38)}C${P(-1.08, -0.2)} ${P(-0.55, -0.92)} ${P(0, -0.98)}Z`);
+  const q = new URLSearchParams(location.search);
+  if (q.has("bleed")) {
+    // Apple touch icon: full-bleed square (iOS rounds the corners itself), artwork a little larger.
+    document.querySelector("#round rect").setAttribute("rx", "0");
+    document.getElementById("art").setAttribute("transform", "translate(256 264) scale(0.86) translate(-256 -290)");
+  } else if (q.has("mask")) {
+    // Maskable: full-bleed square; the artwork shrinks into the central safe circle (r = 40%).
+    document.querySelector("#round rect").setAttribute("rx", "0");
+    document.getElementById("art").setAttribute("transform", "translate(256 270) scale(0.7) translate(-256 -290)");
+  } else {
+    document.getElementById("art").setAttribute("transform", "translate(256 262) scale(0.92) translate(-256 -290)");
+  }
+</script>
+</body></html>

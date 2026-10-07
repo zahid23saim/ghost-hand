@@ -1,0 +1,171 @@
+<!doctype html>
+<!-- Ghost Hand link preview (1200 x 630). Rendered to public/og.png by scripts/make-og.mjs. -->
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,800;1,9..144,700&family=Nunito:wght@700;800&display=block">
+<style>
+  :root { --night: #14122B; --card: #221E45; --cream: #F3E9D2; --muted: #A9A3C9; --gold: #FFC94D; --mint: #5EF2D0; }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--night); }
+  .og { position: relative; width: 1200px; height: 630px; overflow: hidden;
+    background:
+      radial-gradient(520px 340px at 830px 40px, rgba(94,242,208,0.16), rgba(94,242,208,0) 70%),
+      radial-gradient(600px 420px at 120px 640px, rgba(58,50,112,0.7), rgba(58,50,112,0) 70%),
+      radial-gradient(420px 300px at 1180px 600px, rgba(169,139,232,0.14), rgba(169,139,232,0) 70%),
+      var(--night); }
+  #sky { position: absolute; inset: 0; }
+  .copy { position: absolute; left: 64px; top: 0; bottom: 0; width: 570px; display: flex; flex-direction: column; justify-content: center; }
+  .mark { font: 800 112px/0.95 Fraunces, Georgia, serif; color: var(--cream); letter-spacing: -2px; margin: 0; white-space: nowrap; }
+  .mark .o { display: inline-block; width: 66px; height: 66px; margin: 0 3px; vertical-align: -2px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 46%, var(--mint) 0 34%, #2A2552 35% 62%, var(--gold) 63%);
+    box-shadow: 0 0 26px rgba(94,242,208,0.55); }
+  .tag { margin: 34px 0 0; font: 700 50px/1.1 Fraunces, Georgia, serif; color: var(--cream); }
+  .tag em { font-style: italic; color: var(--gold); text-shadow: 0 0 22px rgba(255,201,77,0.45); }
+  .sub { margin: 22px 0 0; white-space: nowrap; font: 800 25px/1.3 Nunito, system-ui, sans-serif; color: var(--muted); }
+  .dots { display: flex; gap: 12px; margin-top: 30px; }
+  .dots i { width: 18px; height: 18px; border-radius: 50%; box-shadow: 0 0 12px currentColor; }
+  #board { position: absolute; left: 615px; top: 35px; width: 560px; height: 575px; overflow: visible; }
+</style>
+</head><body>
+<div class="og">
+  <svg id="sky" viewBox="0 0 1200 630"></svg>
+  <div class="copy">
+    <h1 class="mark">gh<span class="o"></span>st hand</h1>
+    <p class="tag">Push together.<br><em>Don't talk.</em></p>
+    <p class="sub">A silent party game for phones and laptops</p>
+    <div class="dots">
+      <i style="background:#FF7A6B;color:#FF7A6B"></i><i style="background:#F5B83D;color:#F5B83D"></i><i style="background:#3FBF9F;color:#3FBF9F"></i>
+      <i style="background:#5AA9E6;color:#5AA9E6"></i><i style="background:#A98BE8;color:#A98BE8"></i><i style="background:#F28DB2;color:#F28DB2"></i>
+    </div>
+  </div>
+  <svg id="board" viewBox="-60 -230 1120 1150"></svg>
+</div>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const el = (parent, tag, attrs = {}, text) => {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (text != null) e.textContent = text;
+  parent.appendChild(e);
+  return e;
+};
+
+// ---- the sky: deterministic stars, a moon and a few gold sparkles
+let seed = 7;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const sky = document.getElementById("sky");
+for (let i = 0; i < 120; i++) {
+  const big = rnd() < 0.12;
+  el(sky, "circle", { cx: rnd() * 1200, cy: rnd() * 630, r: big ? 1.6 + rnd() : 0.6 + rnd() * 0.9, fill: "#F3E9D2", opacity: (0.2 + rnd() * (big ? 0.6 : 0.35)).toFixed(2) });
+}
+const spark = (p, x, y, s, fill, op = 1) => el(p, "path", { d: `M${x} ${y - s}Q${x} ${y} ${x + s} ${y}Q${x} ${y} ${x} ${y + s}Q${x} ${y} ${x - s} ${y}Q${x} ${y} ${x} ${y - s}Z`, fill, opacity: op });
+spark(sky, 560, 70, 12, "#FFC94D", 0.8);
+spark(sky, 600, 560, 9, "#F3E9D2", 0.55);
+spark(sky, 40, 300, 8, "#FFC94D", 0.55);
+// moon
+const defs = el(sky, "defs");
+const m = el(defs, "mask", { id: "moonm" });
+el(m, "rect", { width: 1200, height: 630, fill: "#fff" });
+el(m, "circle", { cx: 98, cy: 64, r: 24, fill: "#000" });
+const mg = el(defs, "radialGradient", { id: "moong" });
+el(mg, "stop", { offset: 0, "stop-color": "rgba(255,214,140,0.25)" });
+el(mg, "stop", { offset: 1, "stop-color": "rgba(255,214,140,0)" });
+el(sky, "circle", { cx: 86, cy: 74, r: 90, fill: "url(#moong)" });
+el(sky, "circle", { cx: 86, cy: 74, r: 28, fill: "#F7E7BE", mask: "url(#moonm)" });
+
+// ---- the board (board units: 1000 x 900, same layout as shared/board.js)
+const B = document.getElementById("board");
+const bd = el(B, "defs");
+const lg = (id, stops, x2 = 0, y2 = 1) => { const g = el(bd, "linearGradient", { id, x1: 0, y1: 0, x2, y2 }); stops.forEach(([o, c]) => el(g, "stop", { offset: o, "stop-color": c })); };
+lg("face", [[0, "#2A2552"], [0.6, "#221E45"], [1, "#1B1838"]]);
+lg("rim", [[0, "#EBCB78"], [0.45, "#C9A24A"], [0.7, "#EBCB78"], [1, "#8C6B27"]], 1, 1);
+lg("pbody", [[0, "rgba(58,50,112,0.92)"], [1, "rgba(44,39,87,0.92)"]]);
+const rg = (id, stops) => { const g = el(bd, "radialGradient", { id }); stops.forEach(([o, c]) => el(g, "stop", { offset: o, "stop-color": c })); };
+rg("glow", [[0, "rgba(255,201,77,0.95)"], [0.35, "rgba(255,201,77,0.45)"], [1, "rgba(255,201,77,0)"]]);
+rg("hushglow", [[0, "rgba(94,242,208,0.35)"], [0.5, "rgba(94,242,208,0.12)"], [1, "rgba(94,242,208,0)"]]);
+rg("lensg", [[0, "rgba(94,242,208,0.22)"], [1, "rgba(94,242,208,0.06)"]]);
+const sh = el(bd, "filter", { id: "shadow", x: "-20%", y: "-20%", width: "140%", height: "140%" });
+el(sh, "feDropShadow", { dx: 0, dy: 22, stdDeviation: 26, "flood-color": "#000", "flood-opacity": 0.6 });
+const blur = el(bd, "filter", { id: "soft", x: "-50%", y: "-50%", width: "200%", height: "200%" });
+el(blur, "feGaussianBlur", { stdDeviation: 10 });
+
+// Hush peeking over the top edge (drawn first: the board hides its lower half).
+const HX = 640, HS = 330, CUT = 0;
+const hush = el(B, "g", { transform: `translate(${HX - HS / 2} ${CUT - 0.6 * HS}) scale(${HS / 100})` });
+B.insertBefore(el(B, "circle", { cx: HX, cy: CUT - 40, r: 230, fill: "url(#hushglow)" }), hush);
+const body = "M50 8C75.5 8 92.5 26 92.5 50C92.5 64 91.3 74 89.8 82H10.2C8.7 74 7.5 64 7.5 50C7.5 26 24.5 8 50 8Z";
+el(hush, "path", { d: body, fill: "#B8E6E1", stroke: "#B8E6E1", "stroke-width": 5, opacity: 0.55, filter: "url(#soft)" });
+el(hush, "path", { d: body, fill: "#FFFFFF", stroke: "#B8E6E1", "stroke-width": 2.2 });
+for (const x of [27.5, 72.5]) el(hush, "ellipse", { cx: x, cy: 47.5, rx: 6, ry: 3.4, fill: "#F7B7C3", opacity: 0.7 });
+for (const x of [37, 63]) {
+  el(hush, "ellipse", { cx: x, cy: 41, rx: 4.6, ry: 6, fill: "#3B2F5C" });
+  el(hush, "circle", { cx: x + 1.5, cy: 38.6, r: 1.7, fill: "#fff" });
+  el(hush, "circle", { cx: x - 1.6, cy: 43.7, r: 0.8, fill: "#fff" });
+}
+el(hush, "path", { d: "M-3.6 -.6Q0 1.2 3.6 -.6Q3.3 3.8 0 3.8Q-3.3 3.8 -3.6 -.6Z", fill: "#3B2F5C", transform: "translate(50 46.5)" });
+
+// Face and rim.
+el(B, "rect", { x: 0, y: 0, width: 1000, height: 900, rx: 70, fill: "url(#face)", filter: "url(#shadow)" });
+const fc = el(bd, "clipPath", { id: "faceclip" });
+el(fc, "rect", { x: 0, y: 0, width: 1000, height: 900, rx: 70 });
+el(B, "ellipse", { cx: 500, cy: 0, rx: 560, ry: 300, fill: "rgba(94,242,208,0.08)", "clip-path": "url(#faceclip)" });
+el(B, "rect", { x: 0, y: 0, width: 1000, height: 900, rx: 70, fill: "none", stroke: "url(#rim)", "stroke-width": 14 });
+el(B, "rect", { x: 26, y: 26, width: 948, height: 848, rx: 50, fill: "none", stroke: "rgba(235,203,120,0.3)", "stroke-width": 3 });
+for (const [x, y] of [[60, 60], [940, 60], [60, 840], [940, 840]]) spark(B, x, y, 16, "rgba(235,203,120,0.8)");
+
+// Hush's mittens gripping the rim.
+for (const x of [HX - 120, HX + 120]) {
+  el(B, "ellipse", { cx: x, cy: -6, rx: 30, ry: 22, fill: "#FFFFFF", stroke: "#B8E6E1", "stroke-width": 5 });
+}
+
+// A path of the table's hands toward the glowing letter.
+el(B, "path", { d: "M500 690 C 430 600, 560 520, 520 470 S 660 400, 740 380 S 790 340, 800 323", fill: "none", stroke: "rgba(94,242,208,0.16)", "stroke-width": 26, "stroke-linecap": "round" });
+el(B, "path", { d: "M500 690 C 430 600, 560 520, 520 470", fill: "none", stroke: "#FF7A6B", "stroke-width": 8, "stroke-linecap": "round" });
+el(B, "path", { d: "M520 470 S 660 400, 740 380", fill: "none", stroke: "#5AA9E6", "stroke-width": 8, "stroke-linecap": "round" });
+el(B, "path", { d: "M740 380 S 790 340, 800 323", fill: "none", stroke: "#F5B83D", "stroke-width": 8, "stroke-linecap": "round" });
+
+// Letters (x = 500 + (i - (n-1)/2) * 100 ; y = baseY + 0.00025 (x - 500)^2).
+const GLOW = "H";
+const rows = [["ABCDEFGHI", 300], ["JKLMNOPQR", 440], ["STUVWXYZ", 580]];
+let gx = 0, gy = 0;
+for (const [chars, baseY] of rows) {
+  [...chars].forEach((k, i) => {
+    const x = 500 + (i - (chars.length - 1) / 2) * 100;
+    const y = Math.round(baseY + 0.00025 * (x - 500) ** 2);
+    if (k === GLOW) { gx = x; gy = y; return; }
+    el(B, "text", { x, y: y + 22, "text-anchor": "middle", "font-family": "Fraunces, Georgia, serif", "font-weight": 700, "font-size": 64, fill: "rgba(243,233,210,0.86)" }, k);
+  });
+}
+el(B, "text", { x: 150, y: 168, "text-anchor": "middle", "font-family": "Fraunces, Georgia, serif", "font-weight": 800, "font-size": 54, fill: "#FFC94D" }, "YES");
+el(B, "text", { x: 850, y: 168, "text-anchor": "middle", "font-family": "Fraunces, Georgia, serif", "font-weight": 800, "font-size": 54, fill: "#FFC94D" }, "NO");
+spark(B, 150, 88, 20, "#FFC94D", 0.85);
+spark(B, 850, 88, 20, "#FFC94D", 0.85);
+el(B, "rect", { x: 270, y: 715, width: 460, height: 90, rx: 24, fill: "none", stroke: "rgba(201,162,74,0.7)", "stroke-width": 4 });
+el(B, "text", { x: 500, y: 776, "text-anchor": "middle", "font-family": "Fraunces, Georgia, serif", "font-weight": 700, "font-size": 46, fill: "rgba(243,233,210,0.6)", "letter-spacing": 4 }, "GOODBYE");
+
+// The planchette resting on the glowing letter.
+const heart = (r, cx, cy) => {
+  const P = (x, y) => `${(cx + x * r).toFixed(1)} ${(cy + y * r).toFixed(1)}`;
+  return `M${P(0, -0.98)}C${P(0.55, -0.92)} ${P(1.08, -0.2)} ${P(0.86, 0.38)}C${P(0.7, 0.82)} ${P(0.28, 0.98)} ${P(0, 0.78)}` +
+    `C${P(-0.28, 0.98)} ${P(-0.7, 0.82)} ${P(-0.86, 0.38)}C${P(-1.08, -0.2)} ${P(-0.55, -0.92)} ${P(0, -0.98)}Z`;
+};
+const by = gy + 60;
+el(B, "path", { d: heart(112, gx + 16, by + 18), fill: "rgba(0,0,0,0.35)", filter: "url(#soft)" });
+for (const [fx, fy] of [[-62, 44], [62, 44], [0, 80]]) el(B, "ellipse", { cx: gx + fx, cy: by + fy, rx: 18, ry: 11, fill: "#3A3270" });
+el(B, "path", { d: heart(110, gx, by), fill: "url(#pbody)", stroke: "#C9A24A", "stroke-width": 8, "stroke-linejoin": "round" });
+el(B, "path", { d: `M${gx - 86} ${by + 4} A 52 52 0 0 1 ${gx - 46} ${by - 50}`, fill: "none", stroke: "rgba(235,203,120,0.55)", "stroke-width": 7, "stroke-linecap": "round" });
+// Lens: gold glow, the letter, a mint wash, the ring.
+el(B, "circle", { cx: gx, cy: gy, r: 120, fill: "url(#glow)" });
+el(B, "circle", { cx: gx, cy: gy, r: 50, fill: "#221E45" });
+el(B, "circle", { cx: gx, cy: gy, r: 70, fill: "url(#glow)", opacity: 0.7 });
+el(B, "text", { x: gx, y: gy + 30, "text-anchor": "middle", "font-family": "Fraunces, Georgia, serif", "font-weight": 800, "font-size": 86, fill: "#FFE7A3", style: "filter: drop-shadow(0 0 10px rgba(255,201,77,0.95))" }, GLOW);
+el(B, "circle", { cx: gx, cy: gy, r: 50, fill: "url(#lensg)" });
+el(B, "circle", { cx: gx, cy: gy, r: 52, fill: "none", stroke: "#5EF2D0", "stroke-width": 7, style: "filter: drop-shadow(0 0 8px rgba(94,242,208,0.9))" });
+el(B, "circle", { cx: gx, cy: gy, r: 60, fill: "none", stroke: "#C9A24A", "stroke-width": 6 });
+// Mittens of three hands on the planchette, in seat colours.
+for (const [ang, col] of [[200, "#FF7A6B"], [340, "#5AA9E6"], [90, "#F5B83D"]]) {
+  const a = ang * Math.PI / 180;
+  el(B, "circle", { cx: gx + Math.cos(a) * 104, cy: by + Math.sin(a) * 92, r: 26, fill: col, stroke: "#14122B", "stroke-width": 5 });
+}
+</script>
+</body></html>
