@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ghost Hand - Hush</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&display=swap">
+<style>
+  :root {
+    --paper: #F6EFE4; --wall: #E9DFF1; --board: #FFF8EC; --pine: #D9A066; --pine-dark: #B7794A;
+    --ink: #3B2F5C; --aura: #B8E6E1; --candle: #FFD36E; --felt: #D9CCEB;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  /* Lilac parlour wallpaper with little sprigs. */
+  body {
+    margin: 0; color: var(--ink); font: 600 16px/1.45 Nunito, system-ui, sans-serif;
+    background: var(--wall) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='%23DDD0EA'%3E%3Crect x='17.3' y='14' width='1.4' height='12' rx='.7'/%3E%3Cellipse cx='14' cy='21' rx='4.6' ry='2' transform='rotate(-35 14 21)'/%3E%3Cellipse cx='22' cy='21' rx='4.6' ry='2' transform='rotate(35 22 21)'/%3E%3Ccircle cx='18' cy='12.5' r='3'/%3E%3Crect x='49.3' y='46' width='1.4' height='12' rx='.7'/%3E%3Cellipse cx='46' cy='53' rx='4.6' ry='2' transform='rotate(-35 46 53)'/%3E%3Cellipse cx='54' cy='53' rx='4.6' ry='2' transform='rotate(35 54 53)'/%3E%3Ccircle cx='50' cy='44.5' r='3'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  main { max-width: 1000px; margin: 0 auto; padding: 24px 16px 40px; }
+  header { text-align: center; margin-bottom: 20px; }
+  h1 { font-weight: 800; font-size: clamp(34px, 7vw, 48px); line-height: 1.05; margin: 0; letter-spacing: .01em; }
+  header p { margin: 4px 0 0; opacity: .75; }
+  h2 { font-weight: 800; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--pine-dark); margin: 0 0 8px; }
+
+  .stages { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  .card { background: var(--paper); border-radius: 24px; padding: 14px 14px 12px; box-shadow: 0 1px 0 rgba(59, 47, 92, .06), 0 12px 26px -16px rgba(59, 47, 92, .45); }
+  .scene { position: relative; height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; border-radius: 16px; }
+  .scene + p { margin: 10px 4px 0; font-size: 14px; }
+  .scene + p b { font-weight: 800; }
+
+  /* 64 px: Hush peeks over the edge of a little board. */
+  .board { width: 100%; height: 92px; background: var(--board); border-top: 7px solid var(--pine); border-radius: 18px 18px 12px 12px; display: flex; justify-content: center; align-items: center; gap: 14px; color: var(--pine); font-weight: 800; font-size: 22px; letter-spacing: .08em; }
+  .peek-toggle { display: inline-flex; align-items: center; gap: 6px; float: right; font-size: 13px; cursor: pointer; }
+  .peek-toggle input { width: 18px; height: 18px; accent-color: var(--pine-dark); margin: 0; }
+
+  /* 96 px: floating over a felt rug. */
+  .rug { position: absolute; left: 50%; bottom: 18px; width: 168px; height: 30px; margin-left: -84px; border-radius: 50%; background: var(--felt); }
+  #stage-96 { position: relative; margin-bottom: 26px; }
+
+  /* 160 px: the whisper screen, warmed by candlelight. */
+  .glow { background: radial-gradient(circle at 50% 58%, rgba(255, 211, 110, .38), rgba(255, 211, 110, 0) 62%); }
+  #stage-160 { margin-bottom: 18px; }
+
+  .controls { margin-top: 18px; background: var(--board); border-radius: 24px; padding: 16px; box-shadow: 0 1px 0 rgba(59, 47, 92, .06), 0 12px 26px -16px rgba(59, 47, 92, .45); }
+  .row + .row { margin-top: 14px; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+  button {
+    font: 800 15px/1 Nunito, system-ui, sans-serif; color: var(--ink); background: var(--paper);
+    border: 2px solid var(--felt); border-radius: 999px; padding: 10px 16px; min-height: 42px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:hover { background: #FFFDF8; border-color: var(--pine); }
+  button[aria-pressed="true"] { background: var(--candle); border-color: var(--pine); }
+  button:focus-visible { outline: 3px solid var(--aura); outline-offset: 2px; }
+  .status { margin: 14px 2px 0; min-height: 1.45em; font-size: 14px; }
+
+  .note { margin-top: 16px; background: #E3F4F1; border-radius: 20px; padding: 14px 16px; font-size: 14px; }
+  .note p { margin: 0; }
+  .note p + p { margin-top: 6px; }
+  .note b { font-weight: 800; }
+  code { font: 800 13px/1.4 Nunito, system-ui, sans-serif; background: rgba(59, 47, 92, .07); padding: 1px 6px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Hush</h1>
+    <p>A ghost who drops by for tea.</p>
+  </header>
+
+  <section class="stages" aria-label="Hush at three sizes">
+    <div class="card">
+      <div class="scene">
+        <div id="stage-64"></div>
+        <div class="board" aria-hidden="true"><span>A</span><span>B</span><span>C</span></div>
+      </div>
+      <p><label class="peek-toggle"><input type="checkbox" id="peek" checked> peek</label><b>64 px</b> peeking over the board</p>
+    </div>
+    <div class="card">
+      <div class="scene">
+        <div class="rug" aria-hidden="true"></div>
+        <div id="stage-96"></div>
+      </div>
+      <p><b>96 px</b> the default size</p>
+    </div>
+    <div class="card">
+      <div class="scene glow">
+        <div id="stage-160"></div>
+      </div>
+      <p><b>160 px</b> the whisper screen</p>
+    </div>
+  </section>
+
+  <section class="controls" aria-label="Controls">
+    <div class="row">
+      <h2 id="expr-label">Expressions</h2>
+      <div class="buttons" role="group" aria-labelledby="expr-label" id="expressions"></div>
+    </div>
+    <div class="row">
+      <h2 id="acc-label">Accessories</h2>
+      <div class="buttons" role="group" aria-labelledby="acc-label" id="accessories"></div>
+    </div>
+    <div class="row">
+      <h2 id="gesture-label">Gestures</h2>
+      <div class="buttons" role="group" aria-labelledby="gesture-label"><button type="button" id="wave">Wave</button></div>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+  </section>
+
+  <section class="note" aria-label="Reduced motion">
+    <p><b>Reduced motion is <span id="rm-state">off</span> on this device.</b>
+      When it is on, Hush stops bobbing, rippling, spinning and drifting. Only the blink stays, and goodbye becomes a soft fade.</p>
+    <p>Try it from your system settings, or in Chrome DevTools under Rendering, "Emulate CSS media feature prefers-reduced-motion".
+      Every expression call returns a promise: <code>await hush.setExpression("delighted")</code> resolves once the spin is over.</p>
+  </section>
+</main>
+
+<script type="module">
+  import { createHush } from "./js/hush.js";
+
+  const EXPRESSIONS = ["idle", "curious", "whisper", "delighted", "puzzled", "sleepy", "shh", "goodbye"];
+  const ONE_SHOTS = ["delighted", "goodbye"];
+  const ACCESSORIES = [null, "scarf", "flower", "tophat", "monocle"];
+  const $ = (id) => document.getElementById(id);
+
+  const state = { expr: "idle", acc: null };
+  const hushes = {
+    64: createHush($("stage-64"), { size: 64, peek: true }),
+    96: createHush($("stage-96"), { size: 96 }),
+    160: createHush($("stage-160"), { size: 160 }),
+  };
+  const all = () => Object.values(hushes);
+
+  // ------------------------------------------------------------ buttons
+
+  function makeButtons(boxId, values, label, onPick) {
+    const box = $(boxId);
+    for (const value of values) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = label(value);
+      b.dataset.value = String(value);
+      b.addEventListener("click", () => onPick(value));
+      box.appendChild(b);
+    }
+  }
+
+  function markPressed(boxId, value) {
+    for (const b of $(boxId).children) b.setAttribute("aria-pressed", String(b.dataset.value === String(value)));
+  }
+
+  // ------------------------------------------------------------ actions
+
+  let clickId = 0; // ignore promises from expressions that were interrupted
+
+  async function pickExpression(name) {
+    const mine = ++clickId;
+    state.expr = name;
+    markPressed("expressions", name);
+    status(ONE_SHOTS.includes(name) ? `${name}...` : `Hush looks ${name}.`);
+    await Promise.all(all().map((h) => h.setExpression(name)));
+    if (mine !== clickId || !ONE_SHOTS.includes(name)) return;
+    if (name === "delighted") {
+      state.expr = "idle";
+      markPressed("expressions", "idle");
+      status("delighted finished, back to idle.");
+    } else {
+      status("goodbye finished. Pick any expression to bring Hush back.");
+    }
+  }
+
+  function pickAccessory(name) {
+    state.acc = name;
+    markPressed("accessories", name);
+    for (const h of all()) h.setAccessory(name);
+    status(name ? `Hush tries on the ${name === "flower" ? "flower crown" : name}.` : "No accessory.");
+  }
+
+  async function wave() {
+    status("Hush waves hello.");
+    await Promise.all(all().map((h) => h.wave()));
+  }
+
+  // Peek is fixed per instance, so toggling rebuilds the small Hush (and exercises destroy()).
+  function setPeek(peek) {
+    hushes[64].destroy();
+    const h = createHush($("stage-64"), { size: 64, peek });
+    h.setAccessory(state.acc);
+    if (!ONE_SHOTS.includes(state.expr)) h.setExpression(state.expr);
+    hushes[64] = h;
+  }
+
+  function status(text) { $("status").textContent = text; }
+
+  // ------------------------------------------------------------ reduced motion note
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const showReduced = () => { $("rm-state").textContent = reduced.matches ? "on" : "off"; };
+  // Safari before 14 only has the older addListener.
+  if (reduced.addEventListener) reduced.addEventListener("change", showReduced);
+  else reduced.addListener(showReduced);
+  showReduced();
+
+  // ------------------------------------------------------------ boot
+
+  makeButtons("expressions", EXPRESSIONS, (v) => v, pickExpression);
+  makeButtons("accessories", ACCESSORIES, (v) => v ?? "none", pickAccessory);
+  markPressed("expressions", state.expr);
+  markPressed("accessories", state.acc);
+  $("wave").addEventListener("click", wave);
+  $("peek").addEventListener("change", (e) => setPeek(e.target.checked));
+</script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ghost Hand sound demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6EFE4; --wallpaper: #E9DFF1; --sprig: #DDD0EA; --board: #FFF8EC;
+    --pine: #D9A066; --pine-dark: #B7794A; --ink: #3B2F5C; --ghost: #FFFFFF;
+    --aura: #B8E6E1; --candle: #FFD36E; --felt: #D9CCEB;
+    --edge: #EADBC4; --soft-ink: #6B5F8A;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); }
+  body { font: 16px/1.5 "Nunito", system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+  /* Wallpaper band with little leafy sprigs in a half-drop repeat, like the parlour wall. */
+  .wall {
+    --sprig-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cg fill='%23DDD0EA' transform='translate(12 14)'%3E%3Cpath d='M0 7Q-1.5 1 1.5-6' fill='none' stroke='%23DDD0EA' stroke-width='1.5' stroke-linecap='round'/%3E%3Cellipse cx='-2.6' cy='1.6' rx='2.9' ry='1.5' transform='rotate(35 -2.6 1.6)'/%3E%3Cellipse cx='3' cy='-1.6' rx='2.9' ry='1.5' transform='rotate(-35 3 -1.6)'/%3E%3Ccircle cx='1.6' cy='-6.8' r='1.8'/%3E%3C/g%3E%3C/svg%3E");
+    background-color: var(--wallpaper);
+    background-image: var(--sprig-tile), var(--sprig-tile);
+    background-size: 48px 48px;
+    background-position: 0 0, 24px 24px;
+    padding: 28px 16px 24px;
+    border-bottom: 3px solid var(--pine);
+  }
+  .wall-inner { max-width: 760px; margin: 0 auto; display: flex; gap: 16px; align-items: center; }
+  .ghost { width: 72px; height: 72px; flex: none; animation: bob 4s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(-5px); } }
+  h1 { font-size: 1.6rem; line-height: 1.2; font-weight: 800; margin: 0 0 4px; }
+  .wall p { margin: 0; color: var(--soft-ink); font-weight: 600; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 18px 16px 48px; display: grid; gap: 16px; }
+  .card { background: var(--board); border: 2px solid var(--edge); border-radius: 22px; padding: 18px; transition: opacity .3s ease; }
+  body:not(.awake) .card.waits { opacity: .55; }
+  h2 { font-size: 1.1rem; font-weight: 800; margin: 0 0 12px; }
+  .note { margin: 10px 0 0; font-size: .9rem; color: var(--soft-ink); }
+
+  button {
+    font: inherit; font-weight: 700; color: var(--ink);
+    background: var(--felt); border: 0; border-radius: 14px;
+    padding: 10px 16px; min-height: 44px; cursor: pointer;
+    touch-action: manipulation; transition: transform .12s ease;
+  }
+  button:active { transform: scale(.95); }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--pine-dark); outline-offset: 2px; }
+  button.primary { background: var(--candle); }
+  button.quiet { background: var(--ghost); border: 2px solid var(--felt); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .start .row { justify-content: space-between; }
+  #status { margin: 12px 0 0; font-weight: 600; }
+
+  .keys { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 8px; margin-top: 12px; }
+  .key { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; line-height: 1.15; }
+  .key b { font-size: 1.15rem; }
+  .key small { font-size: .72rem; font-weight: 600; color: var(--soft-ink); }
+  .seat { background: var(--aura); }
+
+  .switch { display: flex; align-items: center; gap: 12px; font-weight: 700; cursor: pointer; margin-bottom: 14px; }
+  .switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  /* The pine "on" colour fades in as a layer (opacity), so the switch animates without repaints. */
+  .track { width: 52px; height: 30px; border-radius: 99px; background: var(--felt); position: relative; flex: none; }
+  .track::before {
+    content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: inherit;
+    background: var(--pine); opacity: 0; transition: opacity .2s ease;
+  }
+  .track::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px;
+    border-radius: 50%; background: var(--ghost); transition: transform .2s ease;
+  }
+  .switch input:checked + .track::before { opacity: 1; }
+  .switch input:checked + .track::after { transform: translateX(22px); }
+  .switch input:focus-visible + .track { outline: 3px solid var(--pine-dark); outline-offset: 2px; }
+
+  .slider { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; margin-top: 10px; }
+  .slider label { font-weight: 700; }
+  .slider output { font-variant-numeric: tabular-nums; font-weight: 800; color: var(--pine-dark); }
+  .slider input { grid-column: 1 / -1; width: 100%; accent-color: var(--pine-dark); height: 32px; margin: 0; }
+
+  .meter { height: 10px; margin-top: 14px; border-radius: 99px; background: var(--felt); overflow: hidden; }
+  .meter span { display: block; height: 100%; background: var(--pine); transform-origin: left center; transform: scaleX(0); }
+
+  .bubble {
+    display: inline-block; margin: 14px 0 0; min-height: 1.5em; padding: 10px 16px;
+    background: var(--ghost); border: 2px solid var(--aura); border-radius: 18px 18px 18px 4px;
+    font-weight: 700; opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease;
+  }
+  .bubble.on { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<header class="wall">
+  <div class="wall-inner">
+    <svg class="ghost" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="#B8E6E1"/>
+      <path d="M18 50V28a14 14 0 0 1 28 0v22l-4.7-3.5-4.6 3.5-4.7-3.5-4.7 3.5-4.6-3.5z" fill="#FFFFFF"/>
+      <circle cx="27" cy="29" r="2.2" fill="#3B2F5C"/>
+      <circle cx="37" cy="29" r="2.2" fill="#3B2F5C"/>
+      <path d="M29 35q3 2.5 6 0" stroke="#3B2F5C" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div>
+      <h1>Ghost Hand sound demo</h1>
+      <p>Every sound here is made live with Web Audio. No audio files.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="card start">
+    <div class="row">
+      <button id="enable" class="primary">Enable sound</button>
+      <button id="mute" class="quiet" aria-pressed="false">Mute</button>
+    </div>
+    <p id="status">Tap "Enable sound" first. Until then every control is a polite no-op.</p>
+  </section>
+
+  <section class="card waits">
+    <h2>The parlour</h2>
+    <label class="switch">
+      <input type="checkbox" id="ambience">
+      <span class="track"></span>
+      <span>Room tone and mantel clock</span>
+    </label>
+    <div class="slider">
+      <label for="creak">Creak: how aligned the hands are</label>
+      <output id="creakOut" for="creak">0.00</output>
+      <input type="range" id="creak" min="0" max="1" step="0.01" value="0">
+    </div>
+    <div class="slider">
+      <label for="glide">Glide: planchette speed on the felt</label>
+      <output id="glideOut" for="glide">0.00</output>
+      <input type="range" id="glide" min="0" max="1" step="0.01" value="0">
+    </div>
+    <p class="note">The creak stays silent below 0.30 and grows into a full groan by 0.95. Both sliders are fed to the engine every frame, just as the game does.</p>
+  </section>
+
+  <section class="card waits">
+    <h2>Letters</h2>
+    <div class="row">
+      <button data-action="catch">Catch</button>
+      <button data-action="tok">Tok</button>
+      <button data-action="sweep">Dwell sweep</button>
+      <button data-action="wrong">Wrong</button>
+      <button data-action="goodbye">Goodbye tune</button>
+    </div>
+    <div class="meter" aria-hidden="true"><span id="dwellBar"></span></div>
+    <div class="keys" id="letters"></div>
+    <p class="note">Each letter is a kalimba note on C D E G A, climbing an octave every five, so a sentence becomes a little tune. The goodbye tune replays letters 0 to 9.</p>
+  </section>
+
+  <section class="card waits">
+    <h2>Hush</h2>
+    <div class="row">
+      <button data-say="Hello friend">"Hello friend"</button>
+      <button data-say="Who is there?" data-question>"Who is there?"</button>
+    </div>
+    <p class="bubble" id="bubble" aria-live="polite"></p>
+    <p class="note">The same words always hum the same way. Questions lift at the end.</p>
+  </section>
+
+  <section class="card waits">
+    <h2>Friends arriving</h2>
+    <div class="keys" id="seats"></div>
+  </section>
+</main>
+
+<script type="module">
+import { Sound } from "./js/audio.js";
+
+const sound = new Sound();
+const $ = (id) => document.getElementById(id);
+const NOTE_NAMES = ["C5", "D5", "E5", "G5", "A5", "C6", "D6", "E6", "G6", "A6"];
+const SWEEP_MS = 1200;
+
+let creakA = 0, glideSpeed = 0, sweepFrom = -1, sweepNote = 0, enabled = false, lineId = 0;
+
+// ------------------------------------------------------------ start & mute
+
+$("enable").addEventListener("click", async () => {
+  const ok = await sound.unlock();          // called inside the tap, as iOS requires
+  enabled = enabled || ok;
+  document.body.classList.toggle("awake", enabled);
+  $("enable").textContent = ok ? "Sound is on" : "Tap again to wake the sound";
+  $("status").textContent = ok
+    ? "Sound is on. Have a play. (On iPhone it plays even with the silent switch on.)"
+    : "The browser kept the sound asleep. Tap the button again.";
+});
+// No need to re-unlock on later taps: after an iOS interruption the engine wakes itself
+// on the next tap anywhere on the page.
+
+function paintMute() {
+  $("mute").textContent = sound.muted ? "Unmute" : "Mute";
+  $("mute").setAttribute("aria-pressed", String(sound.muted));
+}
+$("mute").addEventListener("click", () => { sound.setMuted(!sound.muted); paintMute(); });
+paintMute();
+
+// ------------------------------------------------------------ the parlour
+
+$("ambience").addEventListener("change", (e) => sound.ambience(e.target.checked));
+
+function bindSlider(id, set) {
+  const input = $(id), out = $(id + "Out");
+  input.addEventListener("input", () => {
+    const v = Number(input.value);
+    set(v);
+    out.textContent = v.toFixed(2);
+  });
+}
+bindSlider("creak", (v) => (creakA = v));
+bindSlider("glide", (v) => (glideSpeed = v));
+
+// ------------------------------------------------------------ letters, Hush, friends
+
+const actions = {
+  catch: () => sound.catchSound(),
+  tok: () => sound.tok(),
+  sweep: () => { sweepFrom = performance.now(); },
+  wrong: () => sound.wrongSound(),
+  goodbye: () => sound.goodbyeTune(10),
+};
+for (const b of document.querySelectorAll("[data-action]")) {
+  b.addEventListener("click", () => actions[b.dataset.action]());
+}
+
+function addKey(box, big, small, className, onClick) {
+  const b = document.createElement("button");
+  b.className = `key ${className}`;
+  b.innerHTML = `<b>${big}</b><small>${small}</small>`;
+  b.addEventListener("click", onClick);
+  box.append(b);
+}
+NOTE_NAMES.forEach((name, i) => addKey($("letters"), i, name, "", () => sound.letterNote(i)));
+for (let seat = 0; seat < 8; seat++) addKey($("seats"), seat, "seat", "seat", () => sound.joinPop(seat));
+
+// The bubble shows while Hush hums: hushVoice() resolves when the line is done.
+for (const b of document.querySelectorAll("[data-say]")) {
+  b.addEventListener("click", async () => {
+    const id = ++lineId, bubble = $("bubble");
+    bubble.textContent = b.dataset.say;
+    bubble.classList.add("on");
+    await sound.hushVoice(b.dataset.say, { question: b.hasAttribute("data-question") });
+    if (id === lineId) bubble.classList.remove("on");
+  });
+}
+
+// ------------------------------------------------------------ per-frame feed
+
+const dwellBar = $("dwellBar");
+let shownP = -1;
+
+// The dwell sweep fills like the game's selection ring, then lands on a letter.
+function sweepProgress(now) {
+  if (sweepFrom < 0) return 0;
+  const p = Math.min(1, (now - sweepFrom) / SWEEP_MS);
+  if (p < 1) return p;
+  sweepFrom = -1;
+  sound.tok();
+  sound.letterNote(sweepNote++ % NOTE_NAMES.length);
+  return 0;
+}
+
+function frame(now) {
+  sound.creak(creakA);
+  sound.glide(glideSpeed);
+  const p = sweepProgress(now);
+  sound.dwell(p);
+  if (p !== shownP) { dwellBar.style.transform = `scaleX(${p})`; shownP = p; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
