@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14122B">
+<title>Ghost Hand</title>
+<meta name="description" content="A silent co-op party game. Rest your hands on one shared planchette, push together, don't talk, and spell a sentence nobody wrote.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ghost Hand">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ghost Hand">
+<meta property="og:title" content="Ghost Hand - push together, don't talk">
+<meta property="og:description" content="A silent co-op party game. Rest your hands on one shared planchette and spell a sentence nobody wrote.">
+<meta property="og:url" content="https://ghost-hand.due-at-1159.workers.dev/">
+<meta property="og:image" content="https://ghost-hand.due-at-1159.workers.dev/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hush the friendly ghost floating over a talking board, with the words Ghost Hand: push together, don't talk.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ghost Hand - push together, don't talk">
+<meta name="twitter:description" content="A silent co-op party game. Rest your hands on one shared planchette and spell a sentence nobody wrote.">
+<meta name="twitter:image" content="https://ghost-hand.due-at-1159.workers.dev/og.png">
+<meta name="twitter:image:alt" content="Hush the friendly ghost floating over a talking board, with the words Ghost Hand: push together, don't talk.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,600..800,0..100,0..1;1,9..144,600..800,0..100,0..1&family=Nunito:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="app" id="app" data-screen="landing" data-phase="" data-device="laptop">
+  <header class="topbar">
+    <a class="wordmark" href="/" id="home" aria-label="Ghost Hand home" data-i18n-attr="aria-label:top.home">gh<span class="o"></span>st hand</a>
+    <span class="spacer"></span>
+    <button class="chip roomchip" id="roomchip" aria-label="Room code" data-i18n-attr="aria-label:top.roomCode" hidden></button>
+    <button class="iconbtn" id="adddevice" aria-label="Add a device" title="Add a device" data-i18n-attr="aria-label:top.addDevice;title:top.addDevice" hidden>
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v6M9 12h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button class="iconbtn gh-aa-btn" id="aa" aria-label="Comfort settings" title="Comfort" data-i18n-attr="aria-label:top.comfort;title:top.comfortShort" aria-haspopup="dialog" aria-expanded="false">Aa</button>
+    <button class="iconbtn" id="mute" aria-label="Sound on or off" title="Sound" data-i18n-attr="aria-label:top.sound;title:top.soundShort">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="waves" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="cross" d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+
+  <div class="ribbon" id="ribbon"></div>
+  <div class="banner" id="banner" aria-live="polite"></div>
+
+  <main class="stage" id="stage">
+    <canvas id="cv" aria-label="The talking board" data-i18n-attr="aria-label:board.label"></canvas>
+    <div class="hushspot" id="hushspot"></div>
+    <div class="bubble" id="bubble" role="status"></div>
+    <div class="line" id="line" role="status"></div>
+    <div class="gh-caps-dock" id="captions"></div>
+    <div class="toast" id="toast" role="status"></div>
+    <div class="emotes" id="emotefloat" aria-hidden="true"></div>
+    <div class="sr-only" id="announce" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- TV view: the table code and QR, readable from across the room -->
+    <aside class="tvcorner" id="tvcorner" hidden>
+      <div class="tvcode" id="tvcode"></div>
+      <canvas id="tvqr" width="200" height="200" aria-hidden="true"></canvas>
+      <span class="tvjoin" id="tvjoin"></span>
+    </aside>
+
+    <!-- Landing -->
+    <section class="landing" id="landing">
+      <h1 class="bigmark">gh<span class="o"></span>st hand</h1>
+      <p class="tagline"><span data-i18n="landing.tagPush">Push together.</span> <em data-i18n="landing.tagQuiet">Don't talk.</em></p>
+      <p class="subline" data-i18n="landing.subline">Rest your hands on one shared planchette and spell a sentence nobody wrote.</p>
+      <div class="cta">
+        <button class="btn primary big" id="solo">Try it solo <span class="soft">· 1 min</span></button>
+        <button class="btn" id="table" data-i18n="landing.startTable">Start a table</button>
+        <button class="dailychip" id="dailychip" type="button" hidden></button>
+        <form class="codebox" id="codeform" autocomplete="off">
+          <label for="code0" class="codelabel" data-i18n="landing.haveCode">Have a code?</label>
+          <div class="codetiles">
+            <input id="code0" maxlength="1" inputmode="text" autocapitalize="characters" aria-label="Code letter 1">
+            <input maxlength="1" inputmode="text" autocapitalize="characters" aria-label="Code letter 2">
+            <input maxlength="1" inputmode="text" autocapitalize="characters" aria-label="Code letter 3">
+            <input maxlength="1" inputmode="text" autocapitalize="characters" aria-label="Code letter 4">
+          </div>
+        </form>
+        <p class="codeerr" id="codeerr" role="alert"></p>
+        <div class="quietrow">
+          <button class="btn ghost small" id="scrapbookbtn" type="button" hidden data-i18n="landing.scrapbook">Scrapbook</button>
+          <button class="btn ghost small" id="wardrobebtn" type="button" data-i18n="landing.wardrobe">Hush's wardrobe</button>
+        </div>
+      </div>
+      <ol class="picto" aria-label="How to play" data-i18n-attr="aria-label:landing.howTo">
+        <li><span class="pi pi-whisper"></span><span data-i18n="landing.step1">Hush whispers you a word</span></li>
+        <li><span class="pi pi-rest"></span><span data-i18n="landing.step2">Rest your hand, don't talk</span></li>
+        <li><span class="pi pi-push"></span><span data-i18n="landing.step3">Push together</span></li>
+      </ol>
+    </section>
+
+    <!-- Lobby -->
+    <section class="lobby" id="lobby" hidden>
+      <div class="lobbycard">
+        <div class="lobbytop">
+          <div>
+            <div class="eyebrow" data-i18n="lobby.tableCode">Table code</div>
+            <div class="bigcode" id="bigcode"></div>
+            <div class="lobbybtns">
+              <button class="btn small" id="copylink" data-i18n="lobby.copyLink">Copy link</button>
+              <button class="btn small" id="sharelink" data-i18n="lobby.share">Share</button>
+            </div>
+            <a class="tvlink" id="tvlink" href="/" target="_blank" rel="noopener" aria-label="Open a big-screen view of this table in a new tab" data-i18n-attr="aria-label:lobby.tvLabel"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 20h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="lobby.tv">Show on a TV</span></a>
+          </div>
+          <figure class="qr"><canvas id="qr" width="132" height="132"></canvas><figcaption data-i18n="lobby.qrCaption">Open on your phone too</figcaption></figure>
+        </div>
+        <ul class="seats" id="seats"></ul>
+        <div class="hostrow" id="hostrow">
+          <label class="packpick"><span data-i18n="lobby.pack">Pack</span>
+            <select id="pack"></select>
+          </label>
+          <button class="btn small" id="lock" data-i18n="lobby.lock">Lock table</button>
+        </div>
+        <div class="lobbyactions">
+          <button class="btn primary" id="begin" hidden data-i18n="lobby.begin">Begin</button>
+          <button class="btn primary" id="ghostfriends" hidden data-i18n="lobby.ghostFriends">Play with ghost friends</button>
+        </div>
+        <p class="footnote" data-i18n="lobby.muteMics">On a call? Mute your mics.</p>
+      </div>
+    </section>
+
+    <!-- Pick -->
+    <section class="sheet pick" id="pick" hidden>
+      <div class="pickhush" id="pickhush"></div>
+      <h2 class="question" id="pickq"></h2>
+      <p class="picktwist" id="picktwist" hidden></p>
+      <div id="pickslots"></div>
+      <div class="others" id="pickothers"></div>
+      <div class="timer"><span id="picktimer"></span></div>
+    </section>
+
+    <!-- Reveal -->
+    <section class="sheet reveal" id="reveal" hidden>
+      <div class="revealhush" id="revealhush"></div>
+      <div class="revbadges" id="revbadges"></div>
+      <p class="ask" id="revask"></p>
+      <h2 class="sentence" id="sentence"></h2>
+      <p class="speak" id="speak" data-i18n="reveal.speak">Now you may speak.</p>
+      <p class="reaction" id="reaction"></p>
+      <div class="result" id="result">
+        <div class="stars" id="stars"></div>
+        <div class="knew" id="knew"></div>
+        <ul class="titles" id="titles"></ul>
+      </div>
+      <div class="emotebar" id="emotebar">
+        <button data-e="laugh" aria-label="Laugh" data-i18n-attr="aria-label:reveal.laugh">😆</button><button data-e="gasp" aria-label="Gasp" data-i18n-attr="aria-label:reveal.gasp">😮</button><button data-e="heart" aria-label="Heart" data-i18n-attr="aria-label:reveal.heart">💖</button><button data-e="tea" aria-label="Tea" data-i18n-attr="aria-label:reveal.tea">🍵</button>
+      </div>
+      <div class="revealbtns">
+        <button class="btn primary big" id="again" data-i18n="reveal.again">Another cup</button>
+        <button class="btn" id="sharecard" data-i18n="reveal.shareCard">Share card</button>
+        <span class="revmore">
+          <button class="btn small" id="revscrapbook" type="button" data-i18n="reveal.scrapbook">Scrapbook</button>
+          <button class="btn small" id="revwardrobe" type="button" data-i18n="reveal.wardrobe">Wardrobe</button>
+        </span>
+        <button class="btn ghost" id="closebook" data-i18n="reveal.closeBook">Close the book</button>
+      </div>
+      <div class="votes" id="votes"></div>
+      <div class="twodev" id="twodev" hidden>
+        <canvas id="qr2" width="112" height="112"></canvas>
+        <div>
+          <strong data-i18n="reveal.twoScreens">Feel it on two screens.</strong>
+          <span data-i18n="reveal.scanOr">Scan with your phone, or</span>
+          <button class="btn small" id="secondwin" data-i18n="reveal.secondWindow">Open a second window</button>
+          <span class="tiny" id="twodevurl"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dialogs -->
+    <section class="dialog" id="dialog" hidden>
+      <div class="dialogcard">
+        <p id="dialogtext"></p>
+        <div class="dialogbtns" id="dialogbtns"></div>
+      </div>
+    </section>
+  </main>
+  <div class="seatstrip" id="seatstrip" hidden></div>
+
+  <div class="pad" id="pad">
+    <div class="padbanner" id="padbanner"></div>
+    <canvas class="magnifier" id="magnifier" width="144" height="144" aria-hidden="true"></canvas>
+    <span class="padhint" id="padhint" data-i18n="play.padHint">Hold here to rest your hand</span>
+    <button class="knock" id="knock" aria-label="Knock" data-i18n-attr="aria-label:play.knock">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M7 11V7.5a1.5 1.5 0 0 1 3 0V10m0-1V6.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4c0 3.3-2.7 6-6 6h-1.5c-2 0-3.4-.8-4.6-2.3L4.6 14.8a1.4 1.4 0 0 1 2.1-1.9L7 13.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="thumb" id="thumb"></div>
+  </div>
+</div>
+<script src="/vendor/qrcode.js"></script>
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Ghost Hand",
+  "short_name": "Ghost Hand",
+  "description": "A silent co-op party game. Rest your hands on one shared planchette, push together, don't talk, and spell a sentence nobody wrote.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#14122B",
+  "theme_color": "#14122B",
+  "lang": "en",
+  "categories": ["games", "entertainment", "social"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
